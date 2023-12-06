@@ -1,23 +1,41 @@
 body {
+  background-image: url('https://img.freepik.com/photos-gratuite/fond-science-fiction-futuriste-moderne_35913-2152.jpg?w=1380&t=st=1701767678~exp=1701768278~hmac=68eecd223eb94e485188865810a86edaadbb3cf5417b863f42c0aae25f3d1e46');
+    background-size: cover; /* Ajuste la taille de l'image pour couvrir tout le conteneur */
+    background-position: center; /* Centre l'image dans le conteneur */
+    height: 100vh; 
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    background-color: #222;
+    justify-content: center;
+}
+
+.container {
+  text-align: center;
 }
 
 .tetris-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 30px);
-    grid-template-rows: repeat(20, 30px);
-    gap: 1px;
+  display: inline-block;
+  border: 2px solid #343a40;
+  padding: 10px;
+  background-color: #343a40;
+  border-radius: 10px;
+  -webkit-box-shadow:0px 0px 132px 48px rgba(255,46,123,0.9);
+-moz-box-shadow: 0px 0px 132px 48px rgba(255,46,123,0.9);
+box-shadow: 0px 0px 132px 48px rgba(255,46,123,0.9);
 }
 
-.grid-cell {
-    width: 30px;
-    height: 30px;
-    background-color: #333;
-    border: 1px solid #444;
+#tetris {
+  width: 300px;
+  height: 600px;
+  border: 1px solid #fff;
+  background-color: #fff;
 }
-/*  */
+
+h2 {
+  color: #007bff;
+}
+
+th,
+td {
+  padding: 10px;
+  border: 1px solid black;
+}
