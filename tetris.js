@@ -70,7 +70,7 @@ function createTable() {
 
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
-    for (let j = 1; j <= 10; j++) {
+    for (let j = 0; j <= 10; j++) {
       let cell = document.createElement("td");
       cell.id = alphabet[i] + j.toString();
       row.appendChild(cell);
@@ -122,7 +122,7 @@ function Affichage() {
   };
 
   for (let i = 0; i < column.length; i++) {
-    for (let y = 1; y < 11; y++) {
+    for (let y = 0; y < 11; y++) {
       const element = document.getElementById(`${column[i]}${y}`);
       if (element) {
         element.style.backgroundColor = (plateau[i][y] > 0) ? color[plateau[i][y]] : 'white';
@@ -135,7 +135,6 @@ function Affichage() {
 function Spawn() {
   // Générer une nouvelle pièce Tetris aléatoire
   const tetrisPieces = new Piece(Math.floor(Math.random() * 6), index++);
-  console.log(plateau)
   // Définir les colonnes à vérifier
   const columnsToCheck = [4, 5, 6, 7];
 
@@ -188,15 +187,31 @@ function Spawn() {
 
 
 function Run() {
-  
+
   for (let i = 19; i > 0; i--) {
     let block = 0
 
-    for (let y = 9; y > 0; y--) {
+    for (let y = 9; y > -1; y--) {
+      // if( plateau)
+      let verif_plateau = plateau[i].find(element => element === plateau[i][y]);
+    
+      if (verif_plateau > 0 ) {
+console.log(verif_plateau)
+        let verif = nomove.find(element => element === verif_plateau);
 
-      if (plateau[i][y] > 0) {
-        nomove.push(plateau[i][y]);
-        if (plateau[i][y] = 1) {
+        if (verif !== verif_plateau && i !== 19) {
+          // if (
+          //   verif === plateau[i + 1][y + 1] ||
+          //   verif === plateau[i + 1][y] ||
+          //   plateau[i + 1][y] > 0 ||
+          //   verif === plateau[i + 1][y - 1]
+          // ) {
+          nomove.push(verif_plateau);
+          console.log(nomove)
+          // }
+        }
+
+        if (plateau[i][y] == 1) {
           block++
         }
 
@@ -209,32 +224,36 @@ function Run() {
       }
       else {
 
-        if (i > 0) {
-          let verif = true
-         
-          for (let x = 0; x < nomove.length; x++) {
-            if (nomove[x] == plateau[i - 1][y] || plateau[i - 1][y]>0) {
-              console.log(nomove)
-              verif = false
-            }
-          }
-
-          if (verif) {
+        if (i > 0 && plateau[i - 1][y] > 0) {
+          // if (plateau[i - 1][y] !== plateau[i][y - 1] && plateau[i - 1][y] !== plateau[i][y + 1]) {
             
-            plateau[i][y] = plateau[i - 1][y];
+            let verif = nomove.find(element => element === plateau[i - 1][y]);
+            console.log(verif)
+            //         console.log(plateau[i-1][y])
+            //         console.log(nomove)
+            // if(verif !== undefined){
+            //           if (verif !== plateau[i][y - 1] &&
+            //             verif !== plateau[i][y] &&
+            //             verif !== plateau[i][y - 1]) {
+            //             plateau[i][y] = plateau[i - 1][y];
+            //             plateau[i - 1][y] = 0;
+            //           }
+            //         }else{
+            if (verif !== plateau[i-1][y]){
+              plateau[i][y] = plateau[i - 1][y];
             plateau[i - 1][y] = 0;
-            
-          }
+            }
+          // }
         }
       }
-    
+    }
   }
+  Affichage()
 }
-Affichage()
-}
-
+var use = true;
+var use1 = true;
 createTable();
 
 Spawn()
-setInterval(Spawn, 18000)
-setInterval(Run, 1000);
+setInterval(Spawn, 12000)
+setInterval(Run, 500);
