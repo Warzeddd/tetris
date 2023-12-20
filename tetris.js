@@ -55,6 +55,7 @@ var plateau = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [
 
 var index = 1
 var nomove = []
+var score = 0
 
 function createTable() {
   let table = document.getElementById("tetris_table");
@@ -173,60 +174,68 @@ function Run() {
     let block = 0
 
     for (let colonne = 9; colonne > -1; colonne--) {
-      // if( plateau)
-      let verif_plateau = plateau[ligne].find(element => element === plateau[ligne][colonne]);
-      let position_verif = plateau[ligne].indexOf(verif_plateau)
-      let verif_block_fond = 0;
 
-      if (verif_plateau > 0) {
-        if ((ligne + 1) === undefined || (ligne + 1) === 20) {
-          // si il est en bas, il ne peut pas verifier la ligne du dessous donc 1 pour "utiliser"
-          verif_block_fond = plateau[ligne - 1][colonne]
-        } else {
-          // il verifie si la ligne du dessous bloque le deplacement
-          verif_block_fond = plateau[ligne + 1][position_verif]
-        }
 
-        if (verif_block_fond > 0) {
+      if (plateau[ligne - 1][colonne] > 0 &&plateau[ligne][colonne] === 0) {
 
-          let verif = nomove.find(element => element === verif_plateau);
+        // verif()
 
-          if (verif !== verif_plateau && ligne !== 19) {
-            nomove.push(verif_plateau);
-          }
+        let block_stop_verif = nomove.find(element => element === plateau[ligne - 1][colonne]); // block deja bloqué
+        let ligne_verif = plateau[ligne].find(element => element === block_stop_verif); // verfie
 
-          if (plateau[ligne][colonne] == 1) {
-            block++
-          }
+        if (ligne_verif === undefined) {
 
-          if (block == 10) {
-            console.log('win')
-            for (let colonne = 9; colonne > 0; colonne--) {
-              plateau[ligne][colonne] = 0
-            }
-          }
-        }
-      }
-      else {
-
-        if (ligne > 0 && plateau[ligne - 1][colonne] > 0) {
-
-          let block_stop_verif = nomove.find(element => element === plateau[ligne - 1][colonne]); // block deja bloqué
-          let ligne_verif = plateau[ligne].find(element => element === block_stop_verif); // verfie
-
-          if (ligne_verif === undefined) {
-
-            // if (verif !== plateau[ligne-1][colonne] && verif !== plateau[ligne-1][colonne-1] && verif !== plateau[ligne-1][colonne+1] ){
-            plateau[ligne][colonne] = plateau[ligne - 1][colonne];
-            plateau[ligne - 1][colonne] = 0;
-          }
-          // }
+          plateau[ligne][colonne] = plateau[ligne - 1][colonne];
+          plateau[ligne - 1][colonne] = 0;
         }
       }
     }
   }
   Affichage()
 }
+
+function verif() {
+
+  for (let ligne = 19; ligne > 0; ligne--) {
+
+    for (let colonne = 9; colonne > -1; colonne--) {
+
+      let verif_premiere_ligne = plateau[ligne].find(element => element === plateau[ligne-1][colonne]);
+      let verif_deuxieme_ligne = plateau[ligne].find(element => element === plateau[ligne - 1][colonne]);
+      
+
+      if(ligne === 19)
+
+      if (verif_plateau > 0 || verif_plateau !== undefined) {
+
+        let verif_non_existant = nomove.find(element => element === verif_plateau);
+
+        if (verif_non_existant !== verif_plateau) {
+          nomove.push(verif_plateau);
+          console.log(nomove)
+        }
+
+        if (plateau[ligne][colonne] > 1) {
+          if (toutesLesValeursPositives(plateau[ligne])) {
+           score +20
+            document.getElementById("point").textContent = `Points : ${score}`;
+          }
+          if (toutesLesValeursPositives(plateau[0])) {
+            document.getElementById("statut").textContent = `Points : ${lose}`
+          }
+
+        }
+      }
+    }
+  }
+}
+
+function toutesLesValeursPositives(tableau) {
+  return tableau.every(function (valeur) {
+    return valeur > 0;
+  });
+}
+
 
 createTable();
 
