@@ -64,15 +64,15 @@ function createTable() {
   const rows = Array(10).fill('');
   const data = Array(20).fill(rows);
 
-  for (let i = 0; i < data.length; i++) {
+  for (let ligne = 0; ligne < data.length; ligne++) {
     let row = document.createElement("tr");
-    row.id = 'row_' + i; // Assign a unique ID to each row
+    row.id = 'row_' + ligne; // Assign a unique ID to each row
 
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
     for (let j = 0; j <= 10; j++) {
       let cell = document.createElement("td");
-      cell.id = alphabet[i] + j.toString();
+      cell.id = alphabet[ligne] + j.toString();
       row.appendChild(cell);
     }
 
@@ -121,11 +121,11 @@ function Affichage() {
     30: 'darkcyan',
   };
 
-  for (let i = 0; i < column.length; i++) {
-    for (let y = 0; y < 11; y++) {
-      const element = document.getElementById(`${column[i]}${y}`);
+  for (let ligne = 0; ligne < column.length; ligne++) {
+    for (let colonne = 0; colonne < 11; colonne++) {
+      const element = document.getElementById(`${column[ligne]}${colonne}`);
       if (element) {
-        element.style.backgroundColor = (plateau[i][y] > 0) ? color[plateau[i][y]] : 'white';
+        element.style.backgroundColor = (plateau[ligne][colonne] > 0) ? color[plateau[ligne][colonne]] : 'white';
       }
     }
   }
@@ -148,16 +148,16 @@ function Spawn() {
     columnsToCheck.every(column => plateau[nextRowIndex][column] === 0)
   ) {
     // Mettre à jour la première ligne du plateau
-    for (let i = 0; i < columnsToCheck.length; i++) {
-      if (plateau[rowIndex][columnsToCheck[i]] < Piece.getStructure(tetrisPieces.pieceType)[rowIndex][i]) {
-        plateau[rowIndex][columnsToCheck[i]] = tetrisPieces.id;
+    for (let ligne = 0; ligne < columnsToCheck.length; ligne++) {
+      if (plateau[rowIndex][columnsToCheck[ligne]] < Piece.getStructure(tetrisPieces.pieceType)[rowIndex][ligne]) {
+        plateau[rowIndex][columnsToCheck[ligne]] = tetrisPieces.id;
       }
     }
 
     // Mettre à jour la deuxième ligne du plateau
-    for (let i = 0; i < columnsToCheck.length; i++) {
-      if (plateau[nextRowIndex][columnsToCheck[i]] < Piece.getStructure(tetrisPieces.pieceType)[nextRowIndex][i]) {
-        plateau[nextRowIndex][columnsToCheck[i]] = tetrisPieces.id;
+    for (let ligne = 0; ligne < columnsToCheck.length; ligne++) {
+      if (plateau[nextRowIndex][columnsToCheck[ligne]] < Piece.getStructure(tetrisPieces.pieceType)[nextRowIndex][ligne]) {
+        plateau[nextRowIndex][columnsToCheck[ligne]] = tetrisPieces.id;
       }
     }
   }
@@ -174,11 +174,11 @@ function Spawn() {
 //   let row = 0
 
 //   if ((columnsToCheck.every(column => plateau[row][column] === 0)) && (columnsToCheck.every(column => plateau[row + 1][column] === 0))) {
-//     for (let i = 0; i < columnsToCheck.length; i++) {
-//       plateau[row][columnsToCheck[i]] = Piece.getStructure(tetrisPieces.pieceType)[rowIndex][i];
+//     for (let ligne = 0; ligne < columnsToCheck.length; ligne++) {
+//       plateau[row][columnsToCheck[ligne]] = Piece.getStructure(tetrisPieces.pieceType)[rowIndex][ligne];
 //     }
-//     for (let i = 0; i < columnsToCheck.length; i++) {
-//       plateau[row + 1][columnsToCheck[i]] = Piece.getStructure(tetrisPieces.pieceType)[rowIndex + 1][i];
+//     for (let ligne = 0; ligne < columnsToCheck.length; ligne++) {
+//       plateau[row + 1][columnsToCheck[ligne]] = Piece.getStructure(tetrisPieces.pieceType)[rowIndex + 1][ligne];
 //     }
 //   }
 //   console.log('0')
@@ -188,61 +188,82 @@ function Spawn() {
 
 function Run() {
 
-  for (let i = 19; i > 0; i--) {
+  for (let ligne = 19; ligne > 0; ligne--) {
     let block = 0
 
-    for (let y = 9; y > -1; y--) {
+    for (let colonne = 9; colonne > -1; colonne--) {
       // if( plateau)
-      let verif_plateau = plateau[i].find(element => element === plateau[i][y]);
-    
-      if (verif_plateau > 0 ) {
-console.log(verif_plateau)
-        let verif = nomove.find(element => element === verif_plateau);
+      let verif_plateau = plateau[ligne].find(element => element === plateau[ligne][colonne]);
+      let position_verif = plateau[ligne].indexOf(verif_plateau)
+      let verif_block_fond = 0;
 
-        if (verif !== verif_plateau && i !== 19) {
-          // if (
-          //   verif === plateau[i + 1][y + 1] ||
-          //   verif === plateau[i + 1][y] ||
-          //   plateau[i + 1][y] > 0 ||
-          //   verif === plateau[i + 1][y - 1]
-          // ) {
-          nomove.push(verif_plateau);
-          console.log(nomove)
-          // }
+      if (verif_plateau > 0) {
+        if ((ligne+1)=== undefined || (ligne+1)=== 20) {
+          // si il est en bas, il ne peut pas verifier la ligne du dessous donc 1 pour "utiliser"
+          verif_block_fond = plateau[ligne-1][colonne]
+        } else {
+          // il verifie si la ligne du dessous bloque le deplacement
+          verif_block_fond = plateau[ligne + 1][position_verif]
         }
 
-        if (plateau[i][y] == 1) {
-          block++
-        }
+        if (verif_block_fond > 0) {
 
-        if (block == 10) {
-          console.log('win')
-          for (let y = 9; y > 0; y--) {
-            plateau[i][y] = 0
+          // console.log(verif_plateau)
+          // console.log(plateau[ligne+1][position_verif])
+
+          let verif = nomove.find(element => element === verif_plateau);
+
+          if (verif !== verif_plateau && ligne !== 19) {
+            // if (
+            //   verif === plateau[ligne + 1][colonne + 1] ||
+            //   verif === plateau[ligne + 1][colonne] ||
+            //   plateau[ligne + 1][colonne] > 0 ||
+            //   verif === plateau[ligne + 1][colonne - 1]
+            // ) {
+            nomove.push(verif_plateau);
+            // console.log(nomove)
+            // }
+          }
+
+          if (plateau[ligne][colonne] == 1) {
+            block++
+          }
+
+          if (block == 10) {
+            console.log('win')
+            for (let colonne = 9; colonne > 0; colonne--) {
+              plateau[ligne][colonne] = 0
+            }
           }
         }
       }
       else {
 
-        if (i > 0 && plateau[i - 1][y] > 0) {
-          // if (plateau[i - 1][y] !== plateau[i][y - 1] && plateau[i - 1][y] !== plateau[i][y + 1]) {
-            
-            let verif = nomove.find(element => element === plateau[i - 1][y]);
-            console.log(verif)
-            //         console.log(plateau[i-1][y])
-            //         console.log(nomove)
-            // if(verif !== undefined){
-            //           if (verif !== plateau[i][y - 1] &&
-            //             verif !== plateau[i][y] &&
-            //             verif !== plateau[i][y - 1]) {
-            //             plateau[i][y] = plateau[i - 1][y];
-            //             plateau[i - 1][y] = 0;
-            //           }
-            //         }else{
-            if (verif !== plateau[i-1][y]){
-              plateau[i][y] = plateau[i - 1][y];
-            plateau[i - 1][y] = 0;
-            }
+        if (ligne > 0 && plateau[ligne - 1][colonne] > 0) {
+          // if (plateau[ligne - 1][colonne] !== plateau[ligne][colonne - 1] && plateau[ligne - 1][colonne] !== plateau[ligne][colonne + 1]) {
+
+          let block_stop_verif = nomove.find(element => element === plateau[ligne - 1][colonne]);
+          let ligne_verif = plateau[ligne].find(element => element === plateau[ligne-1][colonne]);
+
+          // console.log(ligne_verif)
+
+          // console.log(block_stop_verif)
+          //         console.log(plateau[ligne-1][colonne])
+          //         console.log(nomove)
+          // if(verif !== undefined){
+          //           if (verif !== plateau[ligne][colonne - 1] &&
+          //             verif !== plateau[ligne][colonne] &&
+          //             verif !== plateau[ligne][colonne - 1]) {
+          //             plateau[ligne][colonne] = plateau[ligne - 1][colonne];
+          //             plateau[ligne - 1][colonne] = 0;
+          //           }
+          //         }else{
+          if (block_stop_verif !== ligne_verif || ligne_verif === undefined) {
+
+            // if (verif !== plateau[ligne-1][colonne] && verif !== plateau[ligne-1][colonne-1] && verif !== plateau[ligne-1][colonne+1] ){
+            plateau[ligne][colonne] = plateau[ligne - 1][colonne];
+            plateau[ligne - 1][colonne] = 0;
+          }
           // }
         }
       }
@@ -250,8 +271,7 @@ console.log(verif_plateau)
   }
   Affichage()
 }
-var use = true;
-var use1 = true;
+
 createTable();
 
 Spawn()
