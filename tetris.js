@@ -57,8 +57,11 @@ var index = 1;
 var nomove = [];
 var score = 0;
 var dernier_block;
+var droite = true;
+var gauche = true;
 
-function createTable() {
+
+function createTable() { // creation de l'affichage
   let table = document.getElementById("tetris_table");
 
   let tbody = document.createElement("tbody");
@@ -68,7 +71,7 @@ function createTable() {
 
   for (let ligne = 0; ligne < data.length; ligne++) {
     let row = document.createElement("tr");
-    row.id = 'row_' + ligne; // Assign a unique ID to each row
+    row.id = 'row_' + ligne;// Assign a unique ID to each row
 
     const alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
 
@@ -83,7 +86,6 @@ function createTable() {
 
   table.appendChild(tbody);
 
-  // Get the tetris-grid div and append the table to it
   let tetrisGrid = document.querySelector(".tetris-grid");
   tetrisGrid.appendChild(table);
 }
@@ -127,7 +129,7 @@ function Affichage() {
     for (let colonne = 0; colonne <= 10; colonne++) {
       const element = document.getElementById(`${column[ligne]}${colonne}`);
       if (element) {
-        element.style.backgroundColor = (plateau[ligne][colonne] > 0) ? color[plateau[ligne][colonne]] : 'white';
+        element.style.backgroundColor = (plateau[ligne][colonne] > 0) ? color[plateau[ligne][colonne]] : 'white'; // affichage case couleur pour un block sinon blanc
       }
     }
   }
@@ -185,7 +187,7 @@ function Run() {
 
         if (!block_stop_verif) {
 
-          plateau[ligne][colonne] = plateau[ligne - 1][colonne];
+          plateau[ligne][colonne] = plateau[ligne - 1][colonne]; // on descend la ligne du dessus en dessous
           plateau[ligne - 1][colonne] = 0;
         }
       }
@@ -210,7 +212,7 @@ function verif() {
     }
 
 
-    for (let colonne = 9; colonne > -1; colonne--) {
+    for (let colonne = 10; colonne > -1; colonne--) {
 
       if (plateau[ligne][colonne] > 0) {
 
@@ -221,11 +223,11 @@ function verif() {
           let verif_block = plateau[ligne].indexOf(verif_plateau);
           let test = false;
 
-          if (ligne === 19) { test = true } else
-            if (plateau[ligne + 1][verif_block] > 0) { test = true }
+          if (ligne === 19) { test = true } else // si le block est tout en bas on stop
+            if (plateau[ligne + 1][verif_block] > 0) { test = true }  // si le block touche on stop
 
           if (test) {
-            let verif_non_existant = nomove.find(element => element === verif_plateau);
+            let verif_non_existant = nomove.find(element => element === verif_plateau); // recherche si l'element n'existe pas deja
 
             if (verif_non_existant !== verif_plateau) {
               nomove.push(verif_plateau);
@@ -247,12 +249,28 @@ function toutesLesValeursPositives(tableau) {
 
 function deplacerVersLaDroite() {
   for (var ligne = 0; ligne < plateau.length; ligne++) {
-    for (var colonne = plateau[ligne].length - 1; colonne >= 0; colonne--) {
+    for (var colonne = plateau[ligne].length; colonne >= 0; colonne--) {
       if (plateau[ligne][colonne] === dernier_block) {
-        // Déplacer du dernier block vers la droite
-        if (colonne < plateau[ligne].length) {
-          plateau[ligne][colonne + 1] = dernier_block;
-          plateau[ligne][colonne] = 0;
+
+        if (colonne < 10 && droite) {
+
+          let verif_deplacement = plateau[ligne].find(element => element === 0);
+          let verif_block = plateau[ligne].find(element => element > 0);
+
+          let emplacement_libre = plateau[ligne].indexOf(verif_deplacement);
+          let emplacement_block = plateau[ligne].indexOf(verif_block);
+
+          let distance = emplacement_block - emplacement_libre;
+      
+          // Déplacer du dernier block vers la droite
+          if (colonne < plateau[ligne].length && distance < 10) {
+
+            plateau[ligne][colonne + 1] = dernier_block;
+            plateau[ligne][colonne] = 0;
+            gauche=true;
+          }else{
+            droite=false;
+          }
         }
       }
     }
@@ -264,12 +282,25 @@ function deplacerVersLaGauche() {
     for (var colonne = 0; colonne < plateau[ligne].length; colonne++) {
       if (plateau[ligne][colonne] === dernier_block) {
         // Vérifier que la colonne n'est pas déjà la première colonne
-        if (colonne > 0) {
+        if (colonne > 0 && gauche) {
           // Vérifier que la colonne de destination est à l'intérieur des limites du tableau
-          if (colonne - 1 >= 0) {
+
+          let verif_deplacement = plateau[ligne].find(element => element === 0);
+          let verif_block = plateau[ligne].find(element => element > 0);
+
+          let emplacement_libre = plateau[ligne].indexOf(verif_deplacement);
+          let emplacement_block = plateau[ligne].indexOf(verif_block);
+
+          let distance = emplacement_block - emplacement_libre;
+          
+          if (colonne - 1 >= 0 && distance > 0) {
             // Déplacer la valeur 1 vers la gauche
             plateau[ligne][colonne - 1] = dernier_block;
             plateau[ligne][colonne] = 0;
+            droite = true;
+          }
+          else{
+            gauche = false;
           }
         }
       }
