@@ -53,9 +53,10 @@ var plateau = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ]
 
-var index = 1
-var nomove = []
-var score = 0
+var index = 1;
+var nomove = [];
+var score = 0;
+var dernier_block;
 
 function createTable() {
   let table = document.getElementById("tetris_table");
@@ -123,7 +124,7 @@ function Affichage() {
   };
 
   for (let ligne = 0; ligne < column.length; ligne++) {
-    for (let colonne = 0; colonne < 11; colonne++) {
+    for (let colonne = 0; colonne <= 10; colonne++) {
       const element = document.getElementById(`${column[ligne]}${colonne}`);
       if (element) {
         element.style.backgroundColor = (plateau[ligne][colonne] > 0) ? color[plateau[ligne][colonne]] : 'white';
@@ -159,6 +160,7 @@ function Spawn() {
     for (let ligne = 0; ligne < columnsToCheck.length; ligne++) {
       if (plateau[nextRowIndex][columnsToCheck[ligne]] < Piece.getStructure(tetrisPieces.pieceType)[nextRowIndex][ligne]) {
         plateau[nextRowIndex][columnsToCheck[ligne]] = tetrisPieces.id;
+        dernier_block = tetrisPieces.id;
       }
     }
   }
@@ -171,19 +173,17 @@ function Spawn() {
 function Run() {
 
   for (let ligne = 19; ligne > 0; ligne--) {
-    let block = 0
 
     for (let colonne = 9; colonne > -1; colonne--) {
 
 
-      if (plateau[ligne - 1][colonne] > 0 &&plateau[ligne][colonne] === 0) {
+      if (plateau[ligne - 1][colonne] > 0 && plateau[ligne][colonne] === 0) {
 
-        // verif()
+        verif()
 
         let block_stop_verif = nomove.find(element => element === plateau[ligne - 1][colonne]); // block deja bloqué
-        let ligne_verif = plateau[ligne].find(element => element === block_stop_verif); // verfie
 
-        if (ligne_verif === undefined) {
+        if (!block_stop_verif) {
 
           plateau[ligne][colonne] = plateau[ligne - 1][colonne];
           plateau[ligne - 1][colonne] = 0;
@@ -198,37 +198,46 @@ function verif() {
 
   for (let ligne = 19; ligne > 0; ligne--) {
 
+    if (toutesLesValeursPositives(plateau[ligne])) {
+      score + 20 // ajoute 20 points
+      plateau.splice(ligne, 1); // supprime la ligne complete
+      document.getElementById("point").textContent = `Points : ${score}`; // affiche le nouveau score
+      var nouvelleLigne = plateau[0].slice(); // Crée une copie de la première ligne
+      plateau.push(nouvelleLigne);
+    }
+    if (toutesLesValeursPositives(plateau[0])) {
+      document.getElementById("statut").textContent = `Points : ${lose}` // affichage du statut
+    }
+
+
     for (let colonne = 9; colonne > -1; colonne--) {
 
-      let verif_premiere_ligne = plateau[ligne].find(element => element === plateau[ligne-1][colonne]);
-      let verif_deuxieme_ligne = plateau[ligne].find(element => element === plateau[ligne - 1][colonne]);
-      
+      if (plateau[ligne][colonne] > 0) {
 
-      if(ligne === 19)
+        let verif_plateau = plateau[ligne].find(element => element === plateau[ligne - 1][colonne]); // verifie si la ligne du dessous contient le meme chiffre que la ligne au dessus
 
-      if (verif_plateau > 0 || verif_plateau !== undefined) {
+        if (verif_plateau > 0 || verif_plateau === undefined) { // si oui on va juste verifier si ce n'est pas le block normal sinon on le bloque
 
-        let verif_non_existant = nomove.find(element => element === verif_plateau);
+          let verif_block = plateau[ligne].indexOf(verif_plateau);
+          let test = false;
 
-        if (verif_non_existant !== verif_plateau) {
-          nomove.push(verif_plateau);
-          console.log(nomove)
-        }
+          if (ligne === 19) { test = true } else
+            if (plateau[ligne + 1][verif_block] > 0) { test = true }
 
-        if (plateau[ligne][colonne] > 1) {
-          if (toutesLesValeursPositives(plateau[ligne])) {
-           score +20
-            document.getElementById("point").textContent = `Points : ${score}`;
+          if (test) {
+            let verif_non_existant = nomove.find(element => element === verif_plateau);
+
+            if (verif_non_existant !== verif_plateau) {
+              nomove.push(verif_plateau);
+              console.log(nomove)
+            }
           }
-          if (toutesLesValeursPositives(plateau[0])) {
-            document.getElementById("statut").textContent = `Points : ${lose}`
-          }
-
         }
       }
     }
   }
 }
+
 
 function toutesLesValeursPositives(tableau) {
   return tableau.every(function (valeur) {
@@ -236,6 +245,52 @@ function toutesLesValeursPositives(tableau) {
   });
 }
 
+function deplacerVersLaDroite() {
+  for (var ligne = 0; ligne < plateau.length; ligne++) {
+    for (var colonne = plateau[ligne].length - 1; colonne >= 0; colonne--) {
+      if (plateau[ligne][colonne] === dernier_block) {
+        // Déplacer du dernier block vers la droite
+        if (colonne < plateau[ligne].length) {
+          plateau[ligne][colonne + 1] = dernier_block;
+          plateau[ligne][colonne] = 0;
+        }
+      }
+    }
+  }
+}
+
+function deplacerVersLaGauche() {
+  for (var ligne = 0; ligne < plateau.length; ligne++) {
+    for (var colonne = 0; colonne < plateau[ligne].length; colonne++) {
+      if (plateau[ligne][colonne] === dernier_block) {
+        // Vérifier que la colonne n'est pas déjà la première colonne
+        if (colonne > 0) {
+          // Vérifier que la colonne de destination est à l'intérieur des limites du tableau
+          if (colonne - 1 >= 0) {
+            // Déplacer la valeur 1 vers la gauche
+            plateau[ligne][colonne - 1] = dernier_block;
+            plateau[ligne][colonne] = 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+
+
+// Gestionnaire d'événements pour détecter des touches
+document.addEventListener('keydown', function (event) {
+  if (event.key === 'ArrowRight') {
+    deplacerVersLaDroite();
+    Affichage();
+  }
+  if (event.key === 'ArrowLeft') {
+    deplacerVersLaGauche();
+    Affichage();
+  }
+});
 
 createTable();
 
